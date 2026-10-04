@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#060a12">
+  <title>Exam Day 2: VENGEANCE</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#060a12;color:#e2e6ec;overflow:hidden;font-family:Arial,sans-serif}
+    #canvas{display:block;width:100%;height:100%;outline:none;image-rendering:pixelated}
+    #loading{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 45%,#111d30,#060a12 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px}
+    #loading small{font:11px monospace;letter-spacing:4px;color:#8d9db7}#loading h1{margin:0;font-size:32px;font-weight:400;letter-spacing:2px}
+    progress{width:240px;height:3px;border:0;background:#263347}progress::-webkit-progress-bar{background:#263347}progress::-webkit-progress-value{background:#b6becf}
+    #notice{max-width:520px;font-size:14px;line-height:1.7;text-align:center;white-space:pre-wrap}#loading p{font:11px monospace;color:#65758f}
+  </style>
+  <link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
+<link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
+
+</head>
+<body>
+  <canvas id="canvas" tabindex="0" aria-label="Exam Day 2: Vengeance. WASD or arrow keys move. E talks. Enter continues. Escape pauses.">This game needs a browser with WebGL 2.</canvas>
+  <div id="loading"><small>EXAM DAY 2</small><h1>VENGEANCE</h1><progress id="progress"></progress><div id="notice" role="status"></div><p>DESKTOP / KEYBOARD / SOUND</p></div>
+  <noscript>Enable JavaScript to play.</noscript>
+  <script src="index.js"></script>
+  <script>
+    const config = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":3621592,"index.wasm":39509339},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+    // The small game pack changes during development; keep browser reloads fresh.
+    const pack = `${config.executable}.pck`;
+    config.mainPack = `${pack}?v=${Date.now()}`;
+    config.fileSizes[config.mainPack] = config.fileSizes[pack];
+    const engine = new Engine(config);
+    const canvas = document.querySelector('#canvas');
+    // User requested a fresh replay for this vegetation/music revision.
+    // The revision token is consumed once per browser/origin, with a backup.
+    // Archive both saves first. Remove the token from the URL so refresh is safe.
+    const replayUrl = new URL(location.href);
+    const replayRevision = 'hub-replay-20261004-1';
+    const explicitReplay = replayUrl.searchParams.get('replay');
+    const replayToken = explicitReplay || replayRevision;
+    if (replayToken && !replayUrl.searchParams.has('qa')) {
+      try {
+        const consumed = 'exam_day_2_replay_done';
+        const revisionPending = localStorage.getItem('exam_day_2_replay_revision') !== replayRevision;
+        if (revisionPending || (explicitReplay && localStorage.getItem(consumed) !== replayToken)) {
+          const backup = {date:new Date().toISOString(),prologue:localStorage.getItem('exam_day_2_prologue_v1'),island:localStorage.getItem('exam_day_2_island_v1')};
+          localStorage.setItem('exam_day_2_replay_backup',JSON.stringify(backup));
+          localStorage.setItem('exam_day_2_prologue_v1','incomplete');
+          localStorage.setItem('exam_day_2_island_v1','{}');
+          localStorage.setItem(consumed,replayToken);
+          localStorage.setItem('exam_day_2_replay_revision',replayRevision);
+          canvas.setAttribute('data-save-reset','complete');
+        }
+        replayUrl.searchParams.delete('replay');
+        history.replaceState(null,'',replayUrl.pathname+replayUrl.search+replayUrl.hash);
+      } catch (error) {
+        canvas.setAttribute('data-save-reset','failed');
+        console.error('Could not reset the save:',error);
+      }
+    }
+    canvas.addEventListener('pointerdown', () => canvas.focus({preventScroll:true}));
+    window.__examDayErrors = [];
+    window.addEventListener('error', e => window.__examDayErrors.push(e.message));
+    window.addEventListener('unhandledrejection', e => window.__examDayErrors.push(String(e.reason)));
+    const missing = Engine.getMissingFeatures({threads:false});
+    function failed(error){document.querySelector('#notice').textContent=String(error);document.querySelector('#progress').hidden=true;console.error(error)}
+    if(missing.length){failed('This game requires a desktop browser with WebGL 2 and WebAssembly.\n'+missing.join(', '))}
+    else engine.startGame({onProgress:(current,total)=>{const p=document.querySelector('#progress');if(total){p.max=total;p.value=current}}}).then(()=>{
+      document.querySelector('#loading').remove();document.querySelector('#canvas').focus();
+    }).catch(failed);
+    window.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault()});
+  </script>
+</body>
+</html>
+
+
